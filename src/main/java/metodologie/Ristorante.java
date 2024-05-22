@@ -1,8 +1,13 @@
 package metodologie;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Classe che rappresenta un ristorante (codice da completare)
@@ -53,7 +58,8 @@ public class Ristorante {
 	 * coperti
 	 */
 	public static void stampaPerCoperti(List<Ristorante> l) {
-		// implementare
+		l.stream().sorted(Comparator.comparing(x -> ((Ristorante) x).getCoperti()).reversed())
+				.forEach(r -> System.out.println(r));
 	}
 
 	/**
@@ -61,8 +67,7 @@ public class Ristorante {
 	 * l’insieme dei ristoranti che hanno almeno n coperti
 	 */
 	public static Set<Ristorante> filtraPerCoperti(List<Ristorante> l, int n) {
-		// implementare;
-		return null;
+		return l.stream().filter(r -> r.getCoperti() >= n).collect(Collectors.toSet());
 	}
 
 	/**
@@ -71,8 +76,13 @@ public class Ristorante {
 	 * ordinata per numero di coperti dei ristoranti
 	 */
 	public static Map<TipoRistorante, List<Ristorante>> mappaPerTipo(List<Ristorante> l) {
-		// implementare;
-		return null;
+		return l.stream().collect(Collectors.toMap(Ristorante::getTipo, r -> List.of(r), (l1, l2) -> {
+			List<Ristorante> l3 = new ArrayList<Ristorante>();
+			l3.addAll(l1);
+			l3.addAll(l2);
+			l3.sort(Comparator.comparing(x -> ((Ristorante) x).getCoperti()));
+			return l3;
+		}, () -> new HashMap<TipoRistorante, List<Ristorante>>()));
 	}
 
 	/**
@@ -80,7 +90,7 @@ public class Ristorante {
 	 * ristoranti in ordine alfabetico, separati da virgola
 	 */
 	public static void stampaNomi(List<Ristorante> l) {
-		// implementare;
+		System.out.println(l.stream().map(Ristorante::getNome).reduce((s, r) -> s + ", " + r).orElse(""));
 	}
 
 	/**
@@ -88,8 +98,25 @@ public class Ristorante {
 	 * totale di tutti i coperti dei ristoranti nella lista
 	 */
 	public static int sommaCoperti(List<Ristorante> l) {
-		// implementare;
-		return -1;
+		return l.stream().mapToInt(Ristorante::getCoperti).sum();
+	}
+
+	public static void main(String[] args) {
+		List<Ristorante> risto = Arrays.asList(new Ristorante("La pergola", TipoRistorante.RISTO, 55),
+				new Ristorante("L’etico", TipoRistorante.PIZZERIA, 25),
+				new Ristorante("Da Rossi", TipoRistorante.RISTO, 47),
+				new Ristorante("Da Gigi", TipoRistorante.PIZZERIA, 42),
+				new Ristorante("Giggetto", TipoRistorante.PIZZERIA, 80),
+				new Ristorante("Da Ivo", TipoRistorante.PIZZERIA, 150),
+				new Ristorante("Romolo e Luigi", TipoRistorante.PIZZERIA, 50),
+				new Ristorante("La terrazza", TipoRistorante.RISTO, 40));
+
+		stampaPerCoperti(risto);
+		System.out.println(filtraPerCoperti(risto, 50));
+		System.out.println(mappaPerTipo(risto));
+		stampaNomi(risto);
+		System.out.println(sommaCoperti(risto));
 	}
 
 }
+
